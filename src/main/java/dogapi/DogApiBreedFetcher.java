@@ -25,11 +25,38 @@ public class DogApiBreedFetcher implements BreedFetcher {
      */
     @Override
     public List<String> getSubBreeds(String breed) {
-        // TODO Task 1: Complete this method based on its provided documentation
-        //      and the documentation for the dog.ceo API. You may find it helpful
-        //      to refer to the examples of using OkHttpClient from the last lab,
-        //      as well as the code for parsing JSON responses.
         // return statement included so that the starter code can compile and run.
-        return new ArrayList<>();
+        try {
+            // Construct the API URL for the given breed
+            String url = "https://dog.ceo/api/breed/" + breed + "/list";
+
+            // Create and execute the request
+            Request request = new Request.Builder()
+                    .url(url)
+                    .build();
+
+            Response response = client.newCall(request).execute();
+            // Check if the HTTP request was successful
+            if (!response.isSuccessful()) {
+                throw new BreedNotFoundException("Breed not found: " + breed);
+            }
+            String responseBody = response.body().string();
+            JSONObject json = new JSONObject(responseBody);
+            JSONArray subBreedsArray = json.getJSONArray("message");
+            List<String> subBreeds = new ArrayList<>();
+            for (int i = 0; i < subBreedsArray.length(); i++) {
+                subBreeds.add(subBreedsArray.getString(i));
+            }
+
+            return subBreeds;
+        }
+        catch (IOException e) {
+            // Network or IO errors are reported as BreedNotFoundException
+            throw new BreedNotFoundException("Failed to fetch sub-breeds for breed: " + breed);
+        } catch (Exception e) {
+            // Any other errors (JSON parsing, etc.) are also reported as BreedNotFoundException
+            throw new BreedNotFoundException("Error processing sub-breeds for breed: " + breed);
+        }
+
     }
 }
