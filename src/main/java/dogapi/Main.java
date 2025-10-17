@@ -31,7 +31,7 @@ public class Main {
             return -1;
         } catch (RuntimeException e) {
             if (e.getCause() instanceof BreedFetcher.BreedNotFoundException) {
-                return -1;
+                return 0;
             }
             throw e;
         }
